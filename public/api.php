@@ -1,6 +1,6 @@
 <?php
 
-require_once realpath(__DIR__.'../config/db_config.php');
+require_once realpath(__DIR__.'/../config/db_config.php');
 
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
