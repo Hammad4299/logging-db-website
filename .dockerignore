@@ -1,0 +1,3 @@
+devops/*
+!devops/docker/scripts/*
+!devops/docker/resources/*
