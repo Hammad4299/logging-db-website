@@ -1,0 +1,39 @@
+stages:
+  - build
+
+.prepare:versions:
+  before_script:
+    - PACKAGE_VERSION=$VERSION.$CI_PIPELINE_IID
+    - RELEASE_VERSION=$PACKAGE_VERSION-$CI_COMMIT_SHA
+    
+build:docker:image:
+  extends: .prepare:versions
+  stage: build
+  image: docker:stable
+  dependencies: []  #don't depend on explicit artifacts from any previous job
+  # tags:
+  #   - docker-build-cache
+  services:
+    - docker:dind
+  script:
+    - docker login -u $ACR_USERNAME -p $ACR_PASSWORD $ACR_HOST
+    - docker build -f ./devops/docker/Dockerfile -t $ACR_HOST/logging-db:latest -t $ACR_HOST/logging-db:$PACKAGE_VERSION .
+    - docker push $ACR_HOST/logging-db:$PACKAGE_VERSION
+    - docker push $ACR_HOST/logging-db:latest
+
+# deploy:octopus:kubernetes:
+#   extends: .prepare:versions
+#   stage: deploy
+#   variables:
+#     GIT_STRATEGY: none  #no need to clone
+#   image: octopusdeploy/octo
+#   dependencies: []  #don't depend on explicit artifacts from any previous job
+#   tags:
+#     - docker-build-cache
+#   services:
+#     - docker:dind
+#   script:
+#     - echo 'function octo(){ dotnet /octo/Octo.dll "$@" ;}' >> ~/.bashrc
+#     - source ~/.bashrc
+#     - octo create-release --project="$OCTOPUS_PROJECT" --releaseNumber="$RELEASE_VERSION" --packageversion="$PACKAGE_VERSION" --server="$OCTOPUS_SERVER"  --apiKey="$OCTOPUS_API_KEY"
+#     - octo deploy-release --project="$OCTOPUS_PROJECT" --deployto="$DEPLOY_ENVIRONMENT" --version="$RELEASE_VERSION" --server="$OCTOPUS_SERVER"  --apiKey="$OCTOPUS_API_KEY"
