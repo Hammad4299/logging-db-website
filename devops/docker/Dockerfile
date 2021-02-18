@@ -1,4 +1,4 @@
-FROM richarvey/nginx-php-fpm:1.10.4
+FROM richarvey/nginx-php-fpm:1.9.1
 RUN rm -r /usr/share/nginx/html/*
 ENV WEBROOT /var/www/html/public
 #env MYSQL_HOST
