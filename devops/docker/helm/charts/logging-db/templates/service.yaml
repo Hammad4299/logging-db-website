@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "logging-db.fullname" . }}
+  labels:
+    app: {{ include "logging-db.name" . }}
+    chart: {{ include "logging-db.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ include "logging-db.name" . }}
+    release: {{ .Release.Name }}

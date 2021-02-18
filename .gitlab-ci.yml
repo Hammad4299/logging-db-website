@@ -1,5 +1,6 @@
 stages:
   - build
+  - deploy
 
 build:docker:image:
   stage: build
@@ -15,19 +16,10 @@ build:docker:image:
     - docker push $DOCKER_REGISTRY_PROJECT_PATH:$PACKAGE_VERSION
     - docker push $DOCKER_REGISTRY_PROJECT_PATH:latest
 
-# deploy:octopus:kubernetes:
-#   extends: .prepare:versions
-#   stage: deploy
-#   variables:
-#     GIT_STRATEGY: none  #no need to clone
-#   image: octopusdeploy/octo
-#   dependencies: []  #don't depend on explicit artifacts from any previous job
-#   tags:
-#     - docker-build-cache
-#   services:
-#     - docker:dind
-#   script:
-#     - echo 'function octo(){ dotnet /octo/Octo.dll "$@" ;}' >> ~/.bashrc
-#     - source ~/.bashrc
-#     - octo create-release --project="$OCTOPUS_PROJECT" --releaseNumber="$RELEASE_VERSION" --packageversion="$PACKAGE_VERSION" --server="$OCTOPUS_SERVER"  --apiKey="$OCTOPUS_API_KEY"
-#     - octo deploy-release --project="$OCTOPUS_PROJECT" --deployto="$DEPLOY_ENVIRONMENT" --version="$RELEASE_VERSION" --server="$OCTOPUS_SERVER"  --apiKey="$OCTOPUS_API_KEY"
+deploy:kubernetes:
+  stage: deploy
+  retry: 1
+  image: dtzar/helm-kubectl:3.1.2
+  script:
+    - sh devops/helm/scripts/set_k8s_context.sh
+    - sh devops/helm/scripts/helm-deploy.sh
