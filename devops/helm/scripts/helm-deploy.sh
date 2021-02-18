@@ -1,5 +1,5 @@
 set -e
-export image_repo=${DOCKER_REGISTRY_PROJECT_PATH}/appcode-webserver
+export image_repo=${DOCKER_REGISTRY_PROJECT_PATH}
 export image_tag=$PACKAGE_VERSION
 
 mv devops/helm/charts/logging-db/values.yaml devops/helm/charts/logging-db/tmpvalues.yaml \
